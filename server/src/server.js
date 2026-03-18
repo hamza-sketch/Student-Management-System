@@ -1,11 +1,13 @@
  
 const express = require('express');
-const { connectToMongo } = require('./config/db')
-
+const  connectDB   = require('./config/db')
+const authRoutes = require('./routes/authRoutes');
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+app.use("/api/auth", authRoutes);
 
 // Test route
 app.get('/', (req, res) => {
@@ -14,11 +16,12 @@ app.get('/', (req, res) => {
 
 // Start server AFTER DB connects
 async function startServer() {
-  await connectToMongo();
+  await connectDB();
 
   app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
 }
+
 
 startServer();
