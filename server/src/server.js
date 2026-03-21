@@ -3,6 +3,7 @@ const express = require('express');
 const  connectDB   = require('./config/db')
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
 const app = express();
 const PORT = 3000;
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/student", studentRoutes);
+app.use("/api/teacher" , teacherRoutes);
 
 // Test route
 app.get('/', (req, res) => {
