@@ -6,6 +6,7 @@ const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
 const courseRoutes = require ('./routes/courseRoutes');
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
+const attendanceRoutes = require("./routes/attendanceRoutes");
 
 const app = express();
 const PORT = 3000;
@@ -17,6 +18,7 @@ app.use("/api/student", studentRoutes);
 app.use("/api/teacher" , teacherRoutes);
 app.use("/api/course" , courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
+app.use("/api", attendanceRoutes);
 
 // Test route
 app.get('/', (req, res) => {
