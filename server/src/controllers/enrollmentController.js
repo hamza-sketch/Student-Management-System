@@ -6,7 +6,7 @@ const Course = require("../models/Course");
 
 
 // 📌 Enroll Student
-exports.enrollStudent = async (req, res) => {
+exports.enrollStudent = async (req, res) => { 
   try {
     const { studentId, courseId } = req.body;
 
@@ -45,8 +45,6 @@ exports.enrollStudent = async (req, res) => {
   }
 };
 
-
-
 exports.getAllEnrollments = async (req, res) => {
   try {
     const enrollments = await Enrollment.find()
@@ -66,9 +64,6 @@ exports.getAllEnrollments = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-
-
 
 exports.updateEnrollment = async (req, res) => {
   try {
@@ -109,7 +104,6 @@ exports.removeEnrollment = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 exports.getStudentsByCourse = async (req, res) => {
   try {

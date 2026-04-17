@@ -11,7 +11,6 @@ ref: "Course"
 },
 marks: Number,
 grade: String,
-semester: String
 });
 
 module.exports = mongoose.model("Grade", gradeSchema);

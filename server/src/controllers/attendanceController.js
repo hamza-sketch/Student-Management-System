@@ -115,7 +115,6 @@ exports.updateAttendance = async (req, res) => {
 
     if (status) attendance.status = status;
     if (notes !== undefined) attendance.notes = notes;
-
     await attendance.save();
 
     const populatedAttendance = await populateAttendance(attendance._id);

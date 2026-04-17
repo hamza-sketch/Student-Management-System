@@ -7,9 +7,10 @@ const teacherRoutes = require('./routes/teacherRoutes');
 const courseRoutes = require ('./routes/courseRoutes');
 const enrollmentRoutes = require("./routes/enrollmentRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const gradeRoutes = require("./routes/gradeRoutes");
 
 const app = express();
-const PORT = 3000;
+const PORT = 3001;
 
 app.use(express.json());
 
@@ -19,6 +20,9 @@ app.use("/api/teacher" , teacherRoutes);
 app.use("/api/course" , courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api", attendanceRoutes);
+app.use("/api", gradeRoutes);
+
+
 
 // Test route
 app.get('/', (req, res) => {
