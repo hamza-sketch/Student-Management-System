@@ -1,6 +1,8 @@
  
 const express = require('express');
 const  connectDB   = require('./config/db')
+const cors = require("cors");
+
 const authRoutes = require('./routes/authRoutes');
 const studentRoutes = require('./routes/studentRoutes');
 const teacherRoutes = require('./routes/teacherRoutes');
@@ -11,6 +13,10 @@ const gradeRoutes = require("./routes/gradeRoutes");
 
 const app = express();
 const PORT = 3001;
+app.use(cors({
+  origin: "http://localhost:3000", // frontend URL
+  credentials: true
+}));
 
 app.use(express.json());
 
@@ -21,6 +27,7 @@ app.use("/api/course" , courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api", attendanceRoutes);
 app.use("/api", gradeRoutes);
+
 
 
 
