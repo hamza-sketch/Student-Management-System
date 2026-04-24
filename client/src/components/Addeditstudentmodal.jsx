@@ -1,0 +1,289 @@
+// Addeditstudentmodal.jsx
+import { useState, useEffect } from "react";
+import { X, KeyRound, Loader2, Eye, EyeOff } from "lucide-react";
+
+const INITIAL_FORM = {
+  name: "",
+  email: "",
+  phone: "",
+  dateOfBirth: "",
+  gender: "",
+  address: "",
+};
+
+function Field({ label, required, error, children }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {children}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function Input({ className = "", ...props }) {
+  return (
+    <input
+      className={`w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#111E48]/20 focus:border-[#111E48] focus:bg-white transition-all placeholder:text-slate-400 ${className}`}
+      {...props}
+    />
+  );
+}
+
+function validate(form) {
+  const errors = {};
+  if (!form.name.trim())  errors.name  = "Full name is required.";
+  if (!form.email.trim()) errors.email = "Email is required.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+    errors.email = "Enter a valid email address.";
+  return errors;
+}
+
+export default function AddEditStudentModal({ student, onClose, onSave, loading }) {
+  const isEdit = Boolean(student?.studentId);
+
+  const [form, setForm]         = useState(INITIAL_FORM);
+  const [errors, setErrors]     = useState({});
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMsg, setResetMsg]         = useState("");
+  const [newPassword, setNewPassword]   = useState("");
+  const [showNewPass, setShowNewPass]   = useState(false);
+  const [showResetSection, setShowResetSection] = useState(false);
+
+  useEffect(() => {
+    if (isEdit && student) {
+      setForm({
+        name:        student.name        ?? "",
+        email:       student.email       ?? "",
+        phone:       student.phone       ?? "",
+        dateOfBirth: student.dateOfBirth?.slice(0, 10) ?? "",
+        gender:      student.gender      ?? "",
+        address:     student.address     ?? "",
+        // ✅ Only carry status in edit mode; default value = current status
+        status:      student.status      ?? "Active",
+      });
+    }
+  }, [student]);
+
+  const set = (key) => (e) => {
+    setForm((prev) => ({ ...prev, [key]: e.target.value }));
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const handleSubmit = () => {
+    const errs = validate(form);
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+
+    // Strip status from create payload — backend defaults to "Inactive"
+    const payload = isEdit ? { ...form } : (() => {
+      const { status, ...rest } = form; // eslint-disable-line no-unused-vars
+      return rest;
+    })();
+
+    onSave(payload, student?.studentId);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+          <div>
+            <h2 className="text-lg font-bold text-slate-800">
+              {isEdit ? "Edit Student" : "Add New Student"}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {isEdit
+                ? "Update student information below."
+                : "Fill in the details to register a new student. A temporary password will be auto-generated."}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* ── Body ── */}
+        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+
+          {/* Row 1: Name + Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Field label="Full Name" required error={errors.name}>
+              <Input
+                placeholder="e.g. Ahmed Raza"
+                value={form.name}
+                onChange={set("name")}
+                className="text-slate-900"
+              />
+            </Field>
+            <Field label="Email Address" required error={errors.email}>
+              <Input
+                type="email"
+                placeholder="student@example.com"
+                value={form.email}
+                onChange={set("email")}
+                className="text-slate-900"
+              />
+            </Field>
+          </div>
+
+          {/* ✅ Password fields removed for Add — auto-generated by backend */}
+          {/* ✅ No password fields shown on create at all */}
+
+          {/* Row 2: Phone + DOB */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Field label="Phone Number" error={errors.phone}>
+              <Input
+                type="tel"
+                placeholder="+92 300 1234567"
+                value={form.phone}
+                onChange={set("phone")}
+                className="text-slate-900"
+              />
+            </Field>
+            <Field label="Date of Birth" error={errors.dateOfBirth}>
+              <Input
+                type="date"
+                value={form.dateOfBirth}
+                onChange={set("dateOfBirth")}
+                className="text-slate-900"
+              />
+            </Field>
+          </div>
+
+          {/* Row 3: Gender + Status (status only in Edit) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Field label="Gender" error={errors.gender}>
+              <select
+                value={form.gender}
+                onChange={set("gender")}
+                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#111E48]/20 focus:border-[#111E48] focus:bg-white transition-all text-slate-700"
+              >
+                <option value="">Select gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </Field>
+
+            {/* ✅ Status dropdown ONLY in Edit mode, only Active/Suspended (no Inactive — auto-managed) */}
+            {isEdit && (
+              <Field label="Suspension Status">
+                <select
+                  value={form.status}
+                  onChange={set("status")}
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#111E48]/20 focus:border-[#111E48] focus:bg-white transition-all text-slate-700"
+                >
+                  {/* Active = restore from suspension; Inactive cannot be set manually */}
+                  <option value="Active">Restore (Remove Suspension)</option>
+                  <option value="Suspended">Suspended</option>
+                </select>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Inactive status is managed automatically by enrollment.
+                </p>
+              </Field>
+            )}
+          </div>
+
+          {/* Address */}
+          <Field label="Address">
+            <textarea
+              rows={2}
+              placeholder="Street, City, Country"
+              value={form.address}
+              onChange={set("address")}
+              className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#111E48]/20 focus:border-[#111E48] focus:bg-white transition-all resize-none placeholder:text-slate-400 text-slate-900"
+            />
+          </Field>
+
+          {/* ── Reset Password section (Edit only) ── */}
+          {isEdit && (
+            <div className="border border-slate-200 rounded-2xl p-4 space-y-3">
+              <button
+                type="button"
+                onClick={() => { setShowResetSection((p) => !p); setResetMsg(""); }}
+                className="flex items-center gap-2 text-sm font-semibold text-slate-700 hover:text-[#111E48] transition-colors"
+              >
+                <KeyRound size={15} />
+                {showResetSection ? "Hide" : "Reset Password"}
+              </button>
+
+              {showResetSection && (
+                <div className="flex gap-3">
+                  <div className="relative flex-1">
+                    <Input
+                      type={showNewPass ? "text" : "password"}
+                      placeholder="Enter new password (min. 8 chars)"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pr-10 text-slate-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPass((p) => !p)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showNewPass ? <EyeOff size={15} /> : <Eye size={15} />}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={resetLoading}
+                    className="px-4 py-2.5 text-sm rounded-xl bg-[#111E48] text-white font-medium hover:bg-[#1a2d5a] disabled:opacity-60 transition-colors flex items-center gap-2"
+                  >
+                    {resetLoading && <Loader2 size={14} className="animate-spin" />}
+                    Reset
+                  </button>
+                </div>
+              )}
+
+              {resetMsg && (
+                <p className={`text-xs font-medium ${resetMsg.includes("success") ? "text-emerald-600" : "text-red-500"}`}>
+                  {resetMsg}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* ✅ Info banner for Add mode — explains auto-generated password */}
+          {!isEdit && (
+            <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
+              <KeyRound size={14} className="shrink-0 mt-0.5" />
+              <span>
+                A <strong>temporary password</strong> will be auto-generated for this student.
+                You can view it from the student's profile after creation.
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* ── Footer ── */}
+        <div className="flex gap-3 px-6 py-4 border-t border-slate-100">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2.5 text-sm rounded-xl border border-slate-200 text-slate-900 hover:bg-slate-50 font-medium transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 px-4 py-2.5 text-sm rounded-xl bg-[#111E48] text-white font-semibold hover:bg-[#1a2d5a] disabled:opacity-60 transition-colors flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 size={14} className="animate-spin" />}
+            {isEdit ? "Save Changes" : "Add Student"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -33,6 +33,12 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+     status: {
+      type: String,
+      enum: ["Active", "Inactive", "Suspended"],
+      default: "Inactive",
+    },
+     tempPassword:{ type: String, default: "" },   // stored plain-text (temp use only)
   },
   { timestamps: true }
 );

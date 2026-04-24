@@ -21,15 +21,15 @@ app.use(cors({
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
-app.use("/api/student", studentRoutes);
+app.use("/api/students", studentRoutes);
 app.use("/api/teacher" , teacherRoutes);
 app.use("/api/course" , courseRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api", attendanceRoutes);
-app.use("/api", gradeRoutes);
+app.use("/api", gradeRoutes); 
 
 
-
+ 
 
 // Test route
 app.get('/', (req, res) => {
